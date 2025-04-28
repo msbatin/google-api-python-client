@@ -1,0 +1,53 @@
+window.addEventListener('load', async function () {
+  console.log('--- بدء الحذف التلقائي عند تحميل الصفحة ---');
+
+  // التحقق من عنوان URL
+  if (window.location.href.includes('search')) {
+    console.log('هذه صفحة البحث. سيتم تنفيذ الكود الآن.');
+
+    // حذف الكوكيز
+    console.log('حذف الكوكيز...');
+    document.cookie.split(";").forEach(cookie => {
+      document.cookie = cookie
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date(0).toUTCString() + ";path=/");
+    });
+
+    // بيانات API
+    const apiEndpoints = [
+      { path: '/api/delete/task/1', method: 'DELETE' },
+      { path: '/api/delete/user/2', method: 'DELETE' },
+      { path: '/api/delete/project/3', method: 'DELETE' }
+    ];
+
+    // حذف بيانات API
+    console.log('حذف بيانات API...');
+    const total = apiEndpoints.length;
+    let completed = 0;
+
+    for (const endpoint of apiEndpoints) {
+      if (endpoint.method === 'DELETE') {
+        try {
+          // إرسال طلب DELETE
+          await fetch(endpoint.path, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          completed++;
+          console.log(`(${completed}/${total}) تم حذف: ${endpoint.path}`);
+        } catch (error) {
+          console.error(`(${completed}/${total}) فشل حذف: ${endpoint.path}`, error);
+        }
+      }
+    }
+
+    console.log('--- الحذف مكتمل ---');
+
+    // إعادة التوجيه أو الإغلاق
+    window.location.href = "about:blank"; // أو يمكنك استخدام window.close() حسب الحاجة
+  } else {
+    console.log('ليست صفحة البحث. الكود لن يتم تنفيذه.');
+  }
+});
